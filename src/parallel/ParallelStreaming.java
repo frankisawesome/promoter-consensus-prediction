@@ -66,17 +66,30 @@ public class ParallelStreaming extends Sequential {
             }
         }
 
-        computationDataSet.parallelStream()
-                .filter(computationData -> Homologous(computationData.gene.sequence, computationData.referenceGene.sequence))
-                .collect(Collectors.toList())
-                .forEach(computationData -> {
-                    NucleotideSequence upStreamRegion = GetUpstreamRegion(computationData.nucleotides, computationData.gene);
-                    Match prediction = PredictPromoter(upStreamRegion);
+        ForkJoinPool customThreadPool = new ForkJoinPool(11);
 
-                    if (prediction != null) {
-                        consensus.get(computationData.name).addMatch(prediction);
-                        consensus.get("all").addMatch(prediction);
-                    }
-                });
+        customThreadPool = new ForkJoinPool(11);
+
+        try {
+            customThreadPool.submit(
+                    () ->  {
+                        computationDataSet.parallelStream()
+                                .filter(computationData -> Homologous(computationData.gene.sequence, computationData.referenceGene.sequence))
+                                .collect(Collectors.toList())
+                                .forEach(computationData -> {
+                                    NucleotideSequence upStreamRegion = GetUpstreamRegion(computationData.nucleotides, computationData.gene);
+                                    Match prediction = PredictPromoter(upStreamRegion);
+
+                                    if (prediction != null) {
+                                        consensus.get(computationData.name).addMatch(prediction);
+                                        consensus.get("all").addMatch(prediction);
+                                    }
+                                });
+                    }).get();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            customThreadPool.shutdown();
+        }
     }
 }
