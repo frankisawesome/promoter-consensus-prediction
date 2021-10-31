@@ -51,10 +51,9 @@ public class ParallelStreaming extends Sequential {
         List<GenbankRecord> records = new LinkedList<>();
 
         // we might want to parallelise this for maxmimum performance
-        for (String filename : ListGenbankFiles(dir)) {
-            System.out.println(filename);
-            records.add(Parse(filename));
-        }
+        records = ListGenbankFiles(dir).parallelStream()
+                .map(Sequential::Parse)
+                .collect(Collectors.toList());
 
         // have all dependencies ready to run in parallel stream
         for (GenbankRecord record : records) {
@@ -67,8 +66,6 @@ public class ParallelStreaming extends Sequential {
         }
 
         ForkJoinPool customThreadPool = new ForkJoinPool(11);
-
-        customThreadPool = new ForkJoinPool(11);
 
         try {
             customThreadPool.submit(

@@ -81,11 +81,15 @@ public class Sequential {
         return list;
     }
 
-    protected static GenbankRecord Parse(String file) throws IOException {
+    protected static GenbankRecord Parse(String file) {
         GenbankRecord record = new GenbankRecord();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-        record.Parse(reader);
-        reader.close();
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+            record.Parse(reader);
+            reader.close();
+        } catch (Exception e) {
+            //
+        }
         return record;
     }
 
