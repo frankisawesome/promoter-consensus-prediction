@@ -11,7 +11,7 @@ public class ParallelMain {
     private final HashMap<String, Sigma70Consensus> consensus = new HashMap<String, Sigma70Consensus>();
 
     // rename this method to main to run genbank records in parallel stream
-    public static void main(String[] args) throws IOException {
+    public static void main1(String[] args) throws IOException {
         long startTime = System.nanoTime();
         ParallelStreaming main = new ParallelStreaming();
         main.run("referenceGenes.list", "Ecoli");
@@ -26,7 +26,7 @@ public class ParallelMain {
     }
 
     // rename this method to main to run parallel threads for reference genes
-    public static void main1(String[] args) throws FileNotFoundException, IOException
+    public static void main(String[] args) throws FileNotFoundException, IOException
     {
         long startTime = System.nanoTime();
         ParallelMain main = new ParallelMain();

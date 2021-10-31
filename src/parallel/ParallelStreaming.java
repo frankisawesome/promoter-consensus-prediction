@@ -8,7 +8,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 
@@ -47,7 +46,6 @@ public class ParallelStreaming extends Sequential {
 
     public void run(String referenceFile, String dir) throws IOException {
         List<Gene> referenceGenes = ParseReferenceGenes(referenceFile, consensus);
-        List<ComputationData> computationDataSet = new LinkedList<>();
         List<GenbankRecord> records = new LinkedList<>();
 
         // we might want to parallelise this for maxmimum performance
@@ -56,14 +54,18 @@ public class ParallelStreaming extends Sequential {
                 .collect(Collectors.toList());
 
         // have all dependencies ready to run in parallel stream
-        for (GenbankRecord record : records) {
-            for (Gene referenceGene : referenceGenes) {
-                System.out.println(referenceGene.name);
-                for (Gene gene : record.genes) {
-                    computationDataSet.add(new ComputationData(gene, referenceGene, record.nucleotides, referenceGene.name));
-                }
-            }
-        }
+        final List<ComputationData> computationDataSet = records.parallelStream()
+                .map(record -> {
+                    List<ComputationData> compList= new ArrayList<>();
+                     referenceGenes.forEach(referenceGene -> {
+                         record.genes.forEach(gene -> {
+                             compList.add(new ComputationData(gene, referenceGene, record.nucleotides, referenceGene.name));
+                         });
+                     });
+                     return compList;
+                })
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
 
         ForkJoinPool customThreadPool = new ForkJoinPool(11);
 
