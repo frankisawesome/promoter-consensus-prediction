@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.util.*;
 import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class ParallelStreaming extends Sequential {
     private class ComputationData {
@@ -43,6 +44,25 @@ public class ParallelStreaming extends Sequential {
         reader.close();
         return referenceGenes;
     }
+
+//    protected static NucleotideSequence GetUpstreamRegion(NucleotideSequence dna, Gene gene) {
+//        int upStreamDistance = 250;
+//        if (gene.location < upStreamDistance)
+//            upStreamDistance = gene.location - 1;
+//
+//        if (gene.strand == 1)
+//            return new NucleotideSequence(java.util.Arrays.copyOfRange(dna.bytes, gene.location - upStreamDistance - 1, gene.location - 1));
+//        else {
+//            byte[] result = new byte[upStreamDistance];
+//            int reverseStart = dna.bytes.length - gene.location + upStreamDistance;
+//            IntStream.rangeClosed(0, upStreamDistance).parallel()
+//                    .map(i -> result[i] = complement[dna.bytes[reverseStart - i]])
+//                    .boxed()
+//                    .collect(Collectors.toList());
+//
+//            return new NucleotideSequence(result);
+//        }
+//    }
 
     public void run(String referenceFile, String dir) throws IOException {
         List<Gene> referenceGenes = ParseReferenceGenes(referenceFile, consensus);
